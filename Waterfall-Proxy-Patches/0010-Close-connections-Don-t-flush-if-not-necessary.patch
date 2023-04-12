@@ -1,11 +1,11 @@
-From 9c6dd2dc6ee18d5429d098b5a5d1963cfd404856 Mon Sep 17 00:00:00 2001
+From e801d03bfaa70492f0ad246397b0875c8fec9668 Mon Sep 17 00:00:00 2001
 From: foss-mc <69294560+foss-mc@users.noreply.github.com>
 Date: Wed, 16 Dec 2020 18:06:17 +0800
 Subject: [PATCH] Close connections & Don't flush if not necessary
 
 
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
-index c3543a18..8ed26e5c 100644
+index 965a419f..99e2dafa 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/InitialHandler.java
 @@ -208,6 +208,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
@@ -86,18 +86,18 @@ index 6dc5633f..8b0fac0a 100644
      }
  
 diff --git a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
-index 2a21243b..a95193ba 100644
+index 6a045d16..9227db06 100644
 --- a/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
 +++ b/proxy/src/main/java/net/md_5/bungee/netty/PipelineUtils.java
-@@ -5,6 +5,7 @@ import io.github.waterfallmc.waterfall.event.ConnectionInitEvent;
- import io.netty.buffer.PooledByteBufAllocator;
+@@ -6,6 +6,7 @@ import io.netty.buffer.PooledByteBufAllocator;
  import io.netty.channel.Channel;
  import io.netty.channel.ChannelException;
+ import io.netty.channel.ChannelFactory;
 +import io.netty.channel.ChannelHandlerContext;
  import io.netty.channel.ChannelInitializer;
  import io.netty.channel.ChannelOption;
  import io.netty.channel.EventLoopGroup;
-@@ -98,6 +99,14 @@ public class PipelineUtils
+@@ -102,6 +103,14 @@ public class PipelineUtils
  
              BungeeCord.getInstance().getPluginManager().callEvent(connectionInitEvent);
          }
@@ -110,9 +110,9 @@ index 2a21243b..a95193ba 100644
 +            ctx.close();
 +        }
      };
-     public static final Base BASE = new Base();
-     private static final KickStringWriter legacyKicker = new KickStringWriter();
-@@ -192,5 +201,13 @@ public class PipelineUtils
+     public static final Base BASE = new Base( false );
+     public static final Base BASE_SERVERSIDE = new Base( true );
+@@ -244,5 +253,13 @@ public class PipelineUtils
  
              ch.pipeline().addLast( BOSS_HANDLER, new HandlerBoss() );
          }
